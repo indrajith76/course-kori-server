@@ -23,10 +23,22 @@ async function run() {
     //  collections
     const userCollection = await database.collection("users");
     const coursesCollection = await database.collection("courses");
+    const categoriesCollection = await database.collection("category");
 
     // APIs
+    app.get("/categories", async (req, res) => {
+      const result = await categoriesCollection.find({}).toArray();
+      res.send(result);
+    });
+
     app.get("/users", async (req, res) => {
-      const result = await userCollection.find({}).toArray();
+      const role = req.query.role;
+      let result;
+      if (role) {
+        result = await userCollection.find({ role: role }).toArray();
+      } else {
+        result = await userCollection.find({}).toArray();
+      }
       res.send(result);
     });
 
@@ -55,7 +67,6 @@ async function run() {
     app.get("/courses/:id", async (req, res) => {
       const query = { id: parseInt(req.params.id) };
       const result = await coursesCollection.findOne(query, {});
-      console.log(result);
       res.send(result);
     });
   } finally {
